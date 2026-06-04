@@ -1,0 +1,10 @@
+{
+  "description": "Control run that gives the rule-application model the correct prompt-facing rule directly, bypassing rule articulation.",
+  "kind": "gold_rule_control",
+  "run_id": "trec_location_answer_gold_rule_control_n50_seed0_20260602T040912Z",
+  "source_raw_results": "results/raw_model_outputs/trec_location_answer_gold_rule_control_n50_seed0_20260602T040912Z.jsonl",
+  "source_report": "results/rule_workflow_reports/trec_location_answer_gold_rule_control_n50_seed0_20260602T040912Z_report.md",
+  "source_summary": "results/tables/trec_location_answer_gold_rule_control_n50_seed0_20260602T040912Z_summary.csv",
+  "task_id": "trec_location_answer",
+  "title": "Gold-rule application control: trec_location_answer"
+}

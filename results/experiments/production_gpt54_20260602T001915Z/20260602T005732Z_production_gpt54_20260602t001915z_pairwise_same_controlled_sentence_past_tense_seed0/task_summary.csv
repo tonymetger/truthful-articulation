@@ -1,0 +1,2 @@
+task_id,model,provider,k,seed,n_test,correct,accuracy,nonparseable,nonparseable_rate,temperature,reasoning_effort,data_format,data_file,test_sampling_mode,demo_sampling_mode,prompt_template,label_assignment_mode,label_swap,label_map
+pairwise_same_controlled_sentence_past_tense,gpt-5.4,openai,16,0,50,27,0.54,0,0.0,0.0,none,pool,/Users/tony/Github Repos/truthful-test/data/processed/pairwise_same_controlled_sentence_past_tense/pool_seed0.jsonl,balanced_from_pool,resample_per_test,minimal,random_per_seed,True,"{'A': 'B', 'B': 'A'}"

@@ -1,0 +1,10 @@
+{
+  "description": "Control run that gives the rule-application model the correct prompt-facing rule directly, bypassing rule articulation.",
+  "kind": "gold_rule_control",
+  "run_id": "production_gpt54_20260602T001915Z_gold_rule_control_20260602T042527Z_rerun_sst2_positive_sentiment_rule_description_seed0_20260602T154858Z",
+  "source_raw_results": "results/raw_model_outputs/production_gpt54_20260602T001915Z_gold_rule_control_20260602T042527Z_rerun_sst2_positive_sentiment_rule_description_seed0_20260602T154858Z.jsonl",
+  "source_report": "results/rule_workflow_reports/production_gpt54_20260602T001915Z_gold_rule_control_20260602T042527Z_rerun_sst2_positive_sentiment_rule_description_seed0_20260602T154858Z_report.md",
+  "source_summary": "results/tables/production_gpt54_20260602T001915Z_gold_rule_control_20260602T042527Z_rerun_sst2_positive_sentiment_rule_description_seed0_20260602T154858Z_summary.csv",
+  "task_id": "sst2_positive_sentiment",
+  "title": "Gold-rule application control: sst2_positive_sentiment"
+}

@@ -1,0 +1,11 @@
+{
+  "base_task_id": "trec_human_answer",
+  "description": "Production GPT-5.4 rule-articulation workflow for the solid base task `trec_human_answer`.",
+  "kind": "solid_base",
+  "run_id": "production_gpt54_20260602T001915Z_articulation_20260602T011542Z_base_trec_human_answer_seed0",
+  "source_raw_results": "results/raw_model_outputs/production_gpt54_20260602T001915Z_articulation_20260602T011542Z_base_trec_human_answer_seed0.jsonl",
+  "source_report": "results/rule_workflow_reports/production_gpt54_20260602T001915Z_articulation_20260602T011542Z_base_trec_human_answer_seed0_report.md",
+  "source_summary": "results/tables/production_gpt54_20260602T001915Z_articulation_20260602T011542Z_base_trec_human_answer_seed0_summary.csv",
+  "task_id": "trec_human_answer",
+  "title": "Production articulation workflow: trec_human_answer"
+}

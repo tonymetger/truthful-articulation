@@ -1,0 +1,11 @@
+{
+  "base_task_id": "controlled_sentence_past_tense",
+  "description": "Production GPT-5.4 rule-articulation workflow for the solid base task `controlled_sentence_past_tense`.",
+  "kind": "solid_base",
+  "run_id": "production_gpt54_20260602T001915Z_articulation_20260602T011542Z_base_controlled_sentence_past_tense_seed0",
+  "source_raw_results": "results/raw_model_outputs/production_gpt54_20260602T001915Z_articulation_20260602T011542Z_base_controlled_sentence_past_tense_seed0.jsonl",
+  "source_report": "results/rule_workflow_reports/production_gpt54_20260602T001915Z_articulation_20260602T011542Z_base_controlled_sentence_past_tense_seed0_report.md",
+  "source_summary": "results/tables/production_gpt54_20260602T001915Z_articulation_20260602T011542Z_base_controlled_sentence_past_tense_seed0_summary.csv",
+  "task_id": "controlled_sentence_past_tense",
+  "title": "Production articulation workflow: controlled_sentence_past_tense"
+}

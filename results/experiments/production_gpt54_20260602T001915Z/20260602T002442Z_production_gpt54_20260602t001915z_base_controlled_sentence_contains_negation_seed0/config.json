@@ -1,0 +1,40 @@
+{
+  "aggregate": {
+    "accuracy": 1.0,
+    "correct": 50,
+    "data_file": "/Users/tony/Github Repos/truthful-test/data/processed/controlled_sentence_contains_negation/pool_seed0.jsonl",
+    "data_files": "/Users/tony/Github Repos/truthful-test/data/processed/controlled_sentence_contains_negation/pool_seed0.jsonl",
+    "data_format": "pool",
+    "demo_sampling_mode": "resample_per_test",
+    "k": 16,
+    "label_assignment_mode": "random_per_seed",
+    "label_map": {
+      "A": "B",
+      "B": "A"
+    },
+    "label_swap": true,
+    "model": "gpt-5.4",
+    "n_test": 50,
+    "nonparseable": 0,
+    "nonparseable_rate": 0.0,
+    "prompt_template": "minimal",
+    "prompt_templates": "minimal",
+    "provider": "openai",
+    "reasoning_effort": "none",
+    "seeds": "0",
+    "task_count": 1,
+    "task_id": "controlled_sentence_contains_negation",
+    "task_ids": "controlled_sentence_contains_negation",
+    "temperature": 0.0,
+    "test_sampling_mode": "balanced_from_pool"
+  },
+  "description": "Production GPT-5.4 label-prediction run for the base task `controlled_sentence_contains_negation` using the standard protocol.",
+  "experiment_id": "20260602T002442Z_production_gpt54_20260602t001915z_base_controlled_sentence_contains_negation_seed0",
+  "experiment_slug": "production_gpt54_20260602t001915z_base_controlled_sentence_contains_negation_seed0",
+  "generated_at_utc": "2026-06-02T00:24:42.927777+00:00",
+  "source_result_files": [
+    "/Users/tony/Github Repos/truthful-test/results/raw_model_outputs/production_gpt54_20260602T001915Z_base_controlled_sentence_contains_negation_seed0.jsonl"
+  ],
+  "timestamp_utc": "20260602T002442Z",
+  "title": "Production base prediction: controlled_sentence_contains_negation"
+}

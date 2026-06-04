@@ -1,0 +1,68 @@
+Candidate incremental test cases for question_detection_no_punctuation
+
+Canonical labels:
+A = technically a question
+B = not a question
+
+Notes:
+- These are draft examples for human review only; they are not wired into the
+  experiment registry yet.
+- The candidate text is written in the no-punctuation form the model would see.
+- A examples are genuine questions but use lower-case movie-review diction.
+- Ten A examples include stripped-apostrophe artifacts such as "is n t",
+  "that s", or "scene s", mimicking SST-2 tokenization quirks.
+- B examples are declarative factual statements with TREC-like topics.
+- Twenty B examples begin with a question-like opening word but are not
+  questions.
+
+ID	LABEL	TEXT
+review_question_001	A	is n t this the most irritating cartoon anyone will see this year
+review_question_002	A	does n t the movie ever become more than a limp joke
+review_question_003	A	is the ending s big moment supposed to be moving or just noisy
+review_question_004	A	why is n t the hero written like a boring sad man
+review_question_005	A	how can a film that s this short feel so completely endless
+review_question_006	A	is n t there a single honest laugh in this sequel
+review_question_007	A	does n t the director think gloom is the same as depth
+review_question_008	A	can t any performance survive this toxic little opera
+review_question_009	A	why does every scene s big joke feel half baked and overheated
+review_question_010	A	is this glossy mess really meant to be hollywood s idea of romance
+review_question_011	A	did the screenplay come from mad libs again
+review_question_012	A	could the cartoon be any more frantic and empty
+review_question_013	A	is the whole movie just a headache with credits
+review_question_014	A	does anyone in the cast look awake for this
+review_question_015	A	why should viewers care about such a dreary hero
+review_question_016	A	is the soundtrack trying to rescue the dead story
+review_question_017	A	can a comedy this sour still count as fun
+review_question_018	A	does the film ever find a reason to exist
+review_question_019	A	how did a promising premise become this glum
+review_question_020	A	is this supposed charm just another noisy gimmick
+review_question_021	A	why are the jokes so thin and strangely mean
+review_question_022	A	does the last act make sense to anyone
+review_question_023	A	can the romance feel less manufactured than this
+review_question_024	A	is there any suspense beneath the sluggish pacing
+review_question_025	A	how does such a pretty film feel so hollow
+factual_statement_001	B	What sailors use to measure time is a chronometer
+factual_statement_002	B	What the first ready to eat breakfast cereal was is Granula
+factual_statement_003	B	Which California bridge Don Brown crossed was the Golden Gate Bridge
+factual_statement_004	B	What fear of spiders is called is arachnophobia
+factual_statement_005	B	What a tarantula often eats is an insect
+factual_statement_006	B	Who the famous food editor was is Craig Claiborne
+factual_statement_007	B	Where Nairobi is the capital is Kenya
+factual_statement_008	B	Which planet ranks largest in the solar system is Jupiter
+factual_statement_009	B	Who the author of Hamlet was is William Shakespeare
+factual_statement_010	B	Where California meets the ocean is the Pacific coast
+factual_statement_011	B	How many sides a hexagon has is six
+factual_statement_012	B	Where the Eiffel Tower stands is Paris
+factual_statement_013	B	What currency Japan uses is the yen
+factual_statement_014	B	What chemical symbol gold uses is Au
+factual_statement_015	B	Which planet is known as the red planet is Mars
+factual_statement_016	B	When Apollo 11 landed on the Moon was 1969
+factual_statement_017	B	What language Brazil uses officially is Portuguese
+factual_statement_018	B	Which mountain ranks tallest in Africa is Kilimanjaro
+factual_statement_019	B	Who the painter of the Mona Lisa was is Leonardo da Vinci
+factual_statement_020	B	Where the Sahara Desert lies is Africa
+factual_statement_021	B	The organ that pumps blood through the body is the heart
+factual_statement_022	B	The device used to measure temperature is a thermometer
+factual_statement_023	B	The capital city of Canada is Ottawa
+factual_statement_024	B	The author of Pride and Prejudice was Jane Austen
+factual_statement_025	B	The shape with three sides is a triangle

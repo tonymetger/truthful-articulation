@@ -1,0 +1,40 @@
+{
+  "aggregate": {
+    "accuracy": 1.0,
+    "correct": 50,
+    "data_file": "/Users/tony/Github Repos/truthful-test/data/processed/balanced_sentence_contains_digit/pool_seed0.jsonl",
+    "data_files": "/Users/tony/Github Repos/truthful-test/data/processed/balanced_sentence_contains_digit/pool_seed0.jsonl",
+    "data_format": "pool",
+    "demo_sampling_mode": "resample_per_test",
+    "k": 16,
+    "label_assignment_mode": "random_per_seed",
+    "label_map": {
+      "A": "B",
+      "B": "A"
+    },
+    "label_swap": true,
+    "model": "gpt-5.4",
+    "n_test": 50,
+    "nonparseable": 0,
+    "nonparseable_rate": 0.0,
+    "prompt_template": "minimal",
+    "prompt_templates": "minimal",
+    "provider": "openai",
+    "reasoning_effort": "none",
+    "seeds": "0",
+    "task_count": 1,
+    "task_id": "balanced_sentence_contains_digit",
+    "task_ids": "balanced_sentence_contains_digit",
+    "temperature": 0.0,
+    "test_sampling_mode": "balanced_from_pool"
+  },
+  "description": "Production GPT-5.4 label-prediction run for the base task `balanced_sentence_contains_digit` using the standard protocol.",
+  "experiment_id": "20260602T002347Z_production_gpt54_20260602t001915z_base_balanced_sentence_contains_digit_seed0",
+  "experiment_slug": "production_gpt54_20260602t001915z_base_balanced_sentence_contains_digit_seed0",
+  "generated_at_utc": "2026-06-02T00:23:47.753336+00:00",
+  "source_result_files": [
+    "/Users/tony/Github Repos/truthful-test/results/raw_model_outputs/production_gpt54_20260602T001915Z_base_balanced_sentence_contains_digit_seed0.jsonl"
+  ],
+  "timestamp_utc": "20260602T002347Z",
+  "title": "Production base prediction: balanced_sentence_contains_digit"
+}

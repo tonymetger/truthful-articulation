@@ -1,0 +1,550 @@
+\documentclass[11pt, letterpaper]{article}
+\pdfoutput=1
+\input{definitions.tex}
+\usepackage{colortbl}
+
+\begin{document}
+
+\title{Can LLMs faithfully articulate rules they use in classification tasks?}
+
+\author[1]{Tony Metger\footnote{Email: \href{mailto:tmetger@berkeley.edu}{tmetger@berkeley.edu}}}
+\date{\vspace{-1cm}}
+\affil[1]{Simons Institute for the Theory of Computing, UC Berkeley}
+
+\maketitle
+
+\begin{abstract}
+    We study the ability of large language models (LLMs) to perform simple binary in-context classification tasks and to articulate the corresponding classification rules in natural language.
+    Using ChatGPT 5.4 (without reasoning), 16 labelled examples per prompt, and 50 independent runs per task, we find 12 classification tasks for which the model achieves a prediction accuracy of at least $90\%$.
+    These classification tasks vary widely, from classifying sentences by their semantic meaning or syntactic structure to classifying random strings by the presence of the substring `ab'.
+
+    To evaluate the ability to articulate classification rules, we use two instances of the LLM: the first articulates the rule, and the second is asked to classify a test example given only the articulated rule.
+    We find that for most classification tasks, the articulated rule is similarly useful for classification as labelled examples, indicating that the articulated rule captures the classification task correctly.
+    However, we also identify a few cases in which the LLM is able to perform classification given labeled examples, but makes systematic errors in articulating the rule.
+    
+    Finally, we test the faithfulness of the articulated rules by modifying a classification task so that it can be classified according to one of two coinciding features (e.g., sentence tense or a trailing exclamation point), and testing whether the prediction and articulated rule use the same feature.
+    We identify a case where there is a discrepancy between the features used in prediction and articulation, but note that further research is needed to evaluate faithfulness systematically.
+    
+\end{abstract}
+
+\section{Introduction} \label{sec:intro}
+In this report, we investigate whether LLMs can perform simple binary classification tasks, and whether they are able to articulate the classification rule faithfully in natural language.
+For the sake of simplicity, we only study in-context learning.
+This means that we give an LLM a prompt with a few labelled examples from a classification task and ask it to classify an additional example or articulate the classification rule based on the observed pattern.
+Our experiments could naturally be extended to fine-tuning, i.e., changing the weights of the LLM based on labelled classification examples rather than providing the examples in a prompt, but we do not carry out such experiments here.
+
+We begin by describing the classification tasks we use to investigate the LLM's classification and articulation abilities.
+We give the full list of classification tasks in \cref{sec:task_list}.
+Here, we just describe two tasks as an example.
+
+\medskip
+\noindent\fbox{%
+\begin{minipage}{\dimexpr\linewidth-2\fboxsep-2\fboxrule\relax}
+\textbf{\code{bare_questions}:} Label A iff the input is an actual question after punctuation has been stripped.
+\par\smallskip
+\textbf{Examples:} Label A: What are the different types of plastic \quad Label B: a fast funny highly enjoyable movie
+\par\smallskip
+\textbf{Data source:} existing datasets of factual questions (\code{SetFit/TREC-QC}~\cite{li-roth-2002}) and assertions from movie reviews (\code{stanfordnlp/sst2}~\cite{socher-etal-2013}), filtered using LLMs and with punctuation stripped.
+\end{minipage}%
+}
+
+\noindent\fbox{%
+\begin{minipage}{\dimexpr\linewidth-2\fboxsep-2\fboxrule\relax}
+\textbf{\code{sentence_tense}:} Label A iff the sentence is in past tense.
+\par\smallskip
+\textbf{Examples:} Label A: The child quietly cleaned the shelf. \quad Label B: The students clean the table.
+\par\smallskip
+\textbf{Data source:} LLM-generated synthetic dataset of simple sentences.
+\end{minipage}%
+}
+ 
+\medskip
+
+To test the LLM's classification and articulation ability comprehensively, the full task list in \cref{sec:task_list} includes a wide variety of different types of classification tasks: 
+\begin{itemize} [nosep]
+    \item semantic tasks: e.g., positive vs negative sentiment, or whether a question asks for a person;
+    \item orthography-style tasks: e.g., how many times a letter appears, or the length of the longest word;
+    \item syntactic/grammatical tasks: e.g., questions vs statements, or whether a sentence contains a negation;
+    \item structured string properties: e.g., JSON code with a particular property;
+    \item random string properties: e.g., whether a random string contains `ab' as a substring. 
+\end{itemize}
+
+\paragraph{Increasing difficulty by combining classification tasks.}
+Since constructing entirely new classification tasks is time-consuming, we use a simple scheme to make classification tasks more difficult. For any binary classification task, we can construct a more difficult version by concatenating two examples and using a label that is a function of the two original labels. As a concrete example, consider the \task{sentence_tense} task. 
+The base task is to classify whether a sentence is in the past tense or in the present tense. 
+For the corresponding \emph{combined task}, one example consists of two concatenated sentences, labelled ``A'' if both sentences have the same tense and ``B'' if the sentences differ in their tense. 
+More formally, viewing the labels as bits, this corresponds to taking the XOR of the two original labels; of course, any other logic operator is also possible. 
+
+\section{Evaluating model performance on classification tasks}
+
+To test the LLM's performance on each classification task, we sample 16 random labelled examples and a random test example from the relevant datasets (which contain 300-500 examples, making collisions unlikely), and ask the LLM to classify the test example using the following prompt, shown here for the \task{sentence_tense} task.
+
+\begin{Prompt}
+Classify the final input using the simple pattern in the examples.
+Output A or B, nothing else.
+
+Examples:
+Input: "The guard quickly repaired the bench at work."
+Label: B
+
+Input: "The students clean the table."
+Label: A
+
+[14 additional examples]
+
+Input: "Iris quietly sold the apples downtown."
+Label:
+\end{Prompt}
+
+Note that since we are focussing on in-context learning and each run is performed independently on the same fixed LLM, we see no need to split the data into training and test sets.
+The prompt reliably causes the LLM to output only a single letter ``A'' or ``B'', making the output easy to parse and score.
+
+\begin{table}[t]
+\centering
+\footnotesize
+\begin{tabular}{L{0.32\linewidth}ccc}
+\toprule
+Classification task & \shortstack{Prediction\\accuracy (\%, s.e.)} & \shortstack{Articulation\\accuracy (\%, s.e.)} & \shortstack{Control rule\\accuracy (\%, s.e.)} \\
+\midrule
+\task{digit_sentences} & 100.0 $\pm$ 0.0 & 98.8 $\pm$ 0.7 & 100.0 $\pm$ 0.0 \\
+\task{negation} & 100.0 $\pm$ 0.0 & 95.2 $\pm$ 1.4 & 98.0 $\pm$ 2.0 \\
+\task{bare_questions} & 100.0 $\pm$ 0.0 & 99.2 $\pm$ 0.6 & 94.0 $\pm$ 3.4 \\
+\task{punctuated_questions} & 100.0 $\pm$ 0.0 & 100.0 $\pm$ 0.0 & 100.0 $\pm$ 0.0 \\
+\task{adult_json} & 98.0 $\pm$ 2.0 & 99.6 $\pm$ 0.4 & 100.0 $\pm$ 0.0 \\
+\rowcolor{red!10} \task{number_questions} & 96.0 $\pm$ 2.8 & 81.2 $\pm$ 2.5 & 96.0 $\pm$ 2.8 \\
+\task{punctuated_question_match} & 96.0 $\pm$ 2.8 & 100.0 $\pm$ 0.0 & 100.0 $\pm$ 0.0 \\
+\task{review_sentiment} & 94.0 $\pm$ 3.4 & 94.4 $\pm$ 1.5 & 98.0 $\pm$ 2.0 \\
+\rowcolor{red!10} \task{human_questions} & 94.0 $\pm$ 3.4 & 72.4 $\pm$ 2.8 & 86.0 $\pm$ 4.9 \\
+\task{bare_question_match} & 94.0 $\pm$ 3.4 & 98.0 $\pm$ 0.9 & 96.0 $\pm$ 2.8 \\
+\task{sentence_tense} & 92.0 $\pm$ 3.8 & 96.4 $\pm$ 1.2 & 100.0 $\pm$ 0.0 \\
+\task{contains_ab} & 92.0 $\pm$ 3.8 & 84.0 $\pm$ 2.3 & 100.0 $\pm$ 0.0 \\
+\rowcolor{red!10} \task{sentiment_match} & 88.0 $\pm$ 4.6 & 61.6 $\pm$ 3.1 & 90.0 $\pm$ 4.2 \\
+\rowcolor{red!10} \task{first_letter_pair} & 86.0 $\pm$ 4.9 & 75.2 $\pm$ 2.7 & 100.0 $\pm$ 0.0 \\
+\task{more_a_than_b} & 84.0 $\pm$ 5.2 & 81.6 $\pm$ 2.5 & 92.0 $\pm$ 3.8 \\
+\task{place_questions} & 84.0 $\pm$ 5.2 & 75.6 $\pm$ 2.7 & 90.0 $\pm$ 4.2 \\
+\bottomrule
+\end{tabular}
+\caption{Summary of experimental results. For each of the classification tasks listed in \cref{sec:task_list}, we perform three kinds of experiments: To assess the prediction accuracy, we provide 16 labelled examples and ask the LLM to label a test example. For the articulation accuracy, we again provide 16 labelled examples, but now ask the LLM to articulate the pattern in the examples; we then ask an independent instance of the LLM to label a test example given only the articulated rule, and record the accuracy. 
+The control rule accuracy is the LLM's accuracy in labelling a test example given the (human-generated) correct classification rule.
+All experiments were performed with ChatGPT 5.4 (no reasoning) and results are shown in percent with the standard error.
+We refer to the main text and \cref{sec:parameter_settings} for more details on the experimental setup.
+Highlighted lines indicate a difference between prediction and articulation accuracy of at least 10\%.}
+\label{tab:main_results}
+\normalsize
+\end{table}
+
+We perform these experiments with ChatGPT 5.4 without reasoning with 50 independent runs per task; see \cref{sec:parameter_settings} for the full experimental settings.
+The results of these experiments are displayed in \cref{tab:main_results} as ``Prediction accuracy''.
+In the main text, we only focus on classification tasks where ChatGPT 5.4 achieved an accuracy of at least 80\%, and all but four of the tasks in \cref{tab:main_results} achieved an accuracy above 90\%.
+This demonstrates ChatGPT 5.4's ability to perform in-context learning for simple classification tasks.
+
+In addition to the classification tasks in \cref{tab:main_results}, we also tried additional tasks, listed in \cref{sec:failed_tasks}, for which ChatGPT 5.4 was not able to achieve 80\% accuracy.
+We record some qualitative observations on ChatGPT 5.4's ability to perform in-context classification in \cref{sec:qualitative}.
+
+\section{Articulation of classification rules}
+In this section, we investigate the LLM's ability to articulate the patterns in the labeled examples instead of just predicting the label for a test example.
+In particular, we are interested to see whether articulation is more difficult than prediction.
+To elicit an articulated rule instead of a predicted label, we use the following prompt, which varies only slightly compared to the prompt used for prediction:
+
+\begin{Prompt}
+Infer the simple binary classification rule from the examples.
+Output one short sentence describing the rule, starting with 'Label A if and only if' or 
+'Label B if and only if', depending on which is easier to state.
+
+Examples:
+Input: "The guard quickly repaired the bench at work."
+Label: B
+
+[15 additional examples]
+
+Rule:
+\end{Prompt}
+
+
+
+\paragraph{Evaluating articulated rules.}
+Evaluating whether the LLM articulates a ``correct'' rule is more challenging than checking whether it predicted a correct label.
+The simplest option is to use multiple-choice, where the LLM only has to select the correct rule from a list of potential rules provided in the prompt.
+This makes evaluation simple, but it also makes the LLM's task easier; in a preliminary test, we found that the LLM was able to perform the multiple choice selection with the same (or higher) accuracy than the prediction.
+While we did not run a systematic evaluation, this motivated us to focus on free form rule articulation.
+
+To evaluate free-form articulation, a natural option is to use humans or LLMs to grade the articulated rule by comparing it to the rule used in designing the dataset.
+Human grading is time-consuming and LLM grading is potentially unreliable; in particular, there is no principled way to deal with edge cases, i.e., cases where the articulated rule differs in minor ways from the ``correct'' rule that the experimenter had in mind.\footnote{For example, consider the \task{bare_questions} experiment: there, the task is to distinguish between questions, which are factual in nature, and non-questions taken from a dataset of movie reviews.
+One articulated rule produced by ChatGPT 5.4 was:
+\texttt{``Label A if and only if the sentence is a positive, favorable movie review; otherwise label B.''}
+This rule is not fully accurate since the Label A-examples also contain negative review statements, but it is still likely a useful rule.}
+
+As a more principled method, we evaluate articulated rules by how useful they are for classification: we ask an LLM to classify a test example given only the articulated rule, without any labelled examples.
+Concretely, we run the articulation prompt for 50 independently chosen examples; then, for each articulated rule, we perform five test runs, where we give a new instance of the same LLM the articulated rule and an unlabelled test example. The articulation accuracy is defined as the proportion of correct predictions among these $5 \times 50$ samples.
+The results are summarised in \cref{tab:main_results}.
+
+As a control experiment, we also test how well the LLM can make predictions given the correct rule (i.e., the one the human experimenter had in mind).
+We find that this prediction task can usually be solved with high accuracy, confirming that our evaluation metric for the articulated rules measures primarily the quality of the articulated rule, not the difficulty of making a prediction given a correct rule.
+
+\paragraph{Results from the articulation experiment.}
+We evaluate the articulation accuracy as described above for each of the experiments for which in-context prediction achieved at least $80\%$ accuracy.
+We find that for most datasets, the articulation accuracy is comparable to the prediction accuracy, suggesting that for these cases, articulating the rule is no harder than predicting the next label directly.
+In some instances, it even exceeds the prediction accuracy, albeit not in a statistically significant way.\footnote{It might be interesting to obtain statistically significant results on this, as the articulation-evaluation pipeline can be viewed as a very primitive chain-of-thought, where we force the LLM to break the task of predicting a label into first understanding the rule, followed by applying the rule. It is plausible that in some cases, this might even improve performance.}
+
+However, interestingly we also find cases where the prediction accuracy exceeds the articulation accuracy by more than $10\%$ (highlighted in red in \cref{tab:main_results}), and in some cases by much more.
+As an example, let us consider the \task{sentiment_match} task, where the difference is largest and statistically significant.
+Here, the task is to distinguish whether two movie review snippets express the same sentiment, or have different sentiments.
+In 10/50 samples, the model articulates this rule correctly, e.g. stating: \texttt{``Label A if and only if exactly one of the two sentences is negative and the other is positive''}.
+The remaining 40/50 examples all demonstrate the same failure mode, where the articulated rule classifies examples by whether the first snippet is more or less positive than the second snippet, e.g.: \texttt{``Label A if and only if the second review is more positive than the first.''}
+
+We observe a similar pattern in other experiments: the incorrect articulated rules are not random or nonsensical, but rather tend to make the same mistake in each sample.
+This suggests that the LLM might be biased to pick up on certain features of the input, e.g., ranking sentiments rather than checking whether they are the same in the \task{sentiment_match}-example.
+It remains unclear why this bias towards one particular incorrect rule only occurs in rule articulation, not label prediction.
+
+ 
+
+
+
+\section{Testing faithfulness of articulated classification rules}
+We would now like to understand whether the articulated rules are \emph{faithful}: do the articulated rules actually correspond to the prediction behaviour, or is the prediction behaviour influenced by properties of the input that are not mentioned in the articulated rule?
+Due to time constraints, we only perform a small number of experiments to evaluate this and mention some potential extensions.
+
+We consider the \task{sentence_tense} task, but introduce a \emph{shortcut} into the labelled examples.
+Concretely, we modify sentences according to a \emph{shortcut transformation}; we run separate experiments with three different shortcut transformations: (i) adding an additional space between each letter, (ii) replacing all spaces by underscores, and (iii) replacing the end-of-sentence period by an exclamation point.
+We only apply this transformation to the past-tense sentences, not the present-tense ones.
+Intuitively, this gives the LLM two options: it could either learn the sentence tense or the shortcut, both yielding the same predictions.
+
+We then perform two evaluations: first, we test whether the LLM uses the tense or shortcut in its prediction.
+For this, we apply the shortcut transformation \emph{for the test example} in the \emph{opposite} way, i.e., we transform present-tense sentences, not past-tense ones, and record whether the LLM classifies the test example according to the tense or the shortcut.
+Second, we ask the LLM to articulate the rule when given the shortcut-transformed labeled examples, and record whether the articulated rule refers to the sentence tense or the shortcut.
+Using the experimental settings from \cref{sec:parameter_settings}, we get the following results:
+
+\medskip 
+
+\begin{tabular}{@{}L{0.23\linewidth}L{0.32\linewidth}L{0.32\linewidth}@{}}
+\toprule
+Shortcut transformation  & Feature used for prediction & Feature used in articulation \\
+\midrule
+Inter-letter spaces
+& Tense: 0/50; Shortcut: 50/50
+& Tense: 0/50; Shortcut: 50/50 \\
+Underscores
+& Tense: 2/50; Shortcut: 48/50
+& Tense: 1/50; Shortcut: 49/50 \\
+Terminal punctuation
+& Tense: 25/50; Shortcut: 25/50
+& Tense: 22/50; Shortcut: 28/50 \\
+\bottomrule
+\end{tabular}
+
+\medskip
+
+We see that for the inter-letter spaces and underscore transformations, both the prediction and the articulated rule use the shortcut.
+For the more subtle exclamation point transformation, both the predictions and articulated rules were split roughly evenly between the two options.
+
+Since the exclamation point transformation produced split results for both prediction and articulation, we perform a simple follow-up experiment to test faithfulness: we use the same setup, but asked it to classify a test example and articulate the rule in the same prompt.
+Among 50 independent runs, the model's prediction and articulated rule are consistent in 38/46 cases (i.e., both the prediction and articulation used either the shortcut or the tense).
+In the remaining 4 cases, the articulated rule is unclear, likely due to the presence of the additional test example, where the transformation had been applied in the opposite way.
+This shows some degree of unfaithfulness, but further, more systematic experiments are needed to make a robust statement.
+
+With more time, it would be interesting to do a systematic evaluation of these shortcut transformations, which can be applied to most datasets. Furthermore, one can try to test faithfulness by exploiting natural ambiguities in the datasets (e.g., for \task{bare_questions}, a question about a movie).
+
+% In addition to these artificial transformations, one can also try to exploit natural ambiguities in the tasks.
+% For example, \task{bare_questions} distinguishes between either factual questions or statements from movie reviews.
+% One can therefore create confusing examples such as questions about movie quality (``why should viewers care about such a dreary hero'') or statements that look similar to questions (``Where California meets the ocean is the Pacific coast'').
+% ChatGPT 5.4 only classified 1/50 of such confusing examples correctly, showing that it classifies examples primarily by content (opinionated and movie-related vs factual) rather than form (statement vs question).
+% However, it is difficult to draw conclusions about faithfulness from this because the articulated rules are typically too narrow to uniquely classify such confusing examples (e.g., \texttt{``Label A if and only if the input is a movie-review-style evaluative statement rather than a factual question.''}).
+% It would be interesting to perform additional experiments to explicitly instruct the LLM to produce simple and broad articulated rules to generate cases where the articulated rule and the LLM's prediction on such confusing examples disagree.
+
+
+\newpage 
+
+\appendix
+
+
+
+\section{Code availability and experimental parameter settings} \label{sec:parameter_settings}
+
+The code used for our experiments is available at XXX.
+Unless otherwise noted, all of our experiments use the following parameters:
+\begin{itemize}
+    \item Model: ChatGPT 5.4, using the OpenAI API.
+    \item Temperature: $0.0$.
+    \item Reasoning effort: \code{none}.
+    \item 16 independently sampled labelled examples in each prompt. The label names (`A' vs `B') are assigned randomly and independently.
+    \item $50$ runs per classification task.
+\end{itemize}
+
+
+
+\section{Qualitative observations from testing prediction performance} \label{sec:qualitative}
+We record a few qualitative observations about the LLM's ability to do in-context classification that we have not tested systematically.
+\begin{itemize}
+    \item \textbf{Models tend to focus on semantic meaning:} ChatGPT 5.4 struggled significantly with orthographic properties of real sentences (e.g., whether a sentence contains a word with more than 10 characters). When asked what classification rule it used on such tasks, it would often come up with an incorrect rule focused on the semantic meaning of the sentence.
+    \item \textbf{Small hints help a lot:} Giving even minor hints in the prompt can increase classification accuracy a lot. For example, replacing the prompt ``Classify the final input using the simple pattern in the examples'' by ``Classify the final input using the simple pattern in the examples, focusing on the properties of the string, not the semantic meaning'' frequently increased classification performance from $\sim 50\%$ to $\sim 90\%$ on orthography-style tasks. Similarly, including the phrase ``tense-related pattern'' in the prompt significantly increased accuracy on classifying the main verb tense of complex sentences.
+    \item \textbf{More labelled examples help little:} Above a certain threshold (which depends on the task, commonly around 10), adding additional labelled examples to the prompt helped surprisingly little (and, in a few cases, even decreased classification performance, though we did not run sufficiently many tests to rule out that this is a statistical fluctuation).
+    \item \textbf{Combining tasks significantly increases difficulty.} Combining tasks as described in \cref{sec:intro} (e.g., labelling two sentences according to whether they have the same sentiment) significantly decreases classification accuracy.
+Indeed, as shown in \cref{tab:fail_performance}, for most of these combined tasks, the LLM's prediction performance was no better than chance even if the base task could be solved accurately.
+    \item \textbf{Reasoning helps the most when the non-reasoning performance is already decent:} By default, all experiments were done without reasoning. However, we did test the impact of reasoning on the classification performance in ChatGPT 5.4 Mini and found that reasoning increases the classification performance on tasks that already achieved accuracy $\geq 80\%$ without reasoning; in contrast, reasoning helped surprisingly little for tasks with a non-reasoning accuracy of $\sim50\%$. We refer to \cref{tab:task_reasoning_results} for details.
+\end{itemize}
+
+\begin{table}[ht]
+\centering
+\small
+\begin{tabular}{@{}lcc@{}}
+\toprule
+Task & \shortstack{Classification accuracy\\without reasoning (\%)} & \shortstack{Classification accuracy\\with reasoning (\%)} \\
+\midrule
+\task{punctuated_questions} & $100.0 \pm 0.0$ & $100.0 \pm 0.0$ \\
+\task{bare_questions} & $100.0 \pm 0.0$ & $100.0 \pm 0.0$ \\
+\task{review_sentiment} & $92.0 \pm 3.8$ & $92.0 \pm 3.8$ \\
+\task{number_questions} & $88.0 \pm 4.6$ & $96.0 \pm 2.8$ \\
+\task{human_questions} & $84.0 \pm 5.2$ & $90.0 \pm 4.2$ \\
+\task{place_questions} & $80.0 \pm 5.7$ & $94.0 \pm 3.4$ \\
+\task{even_words} & $60.0 \pm 6.9$ & $43.6 \pm 7.9$ \\
+\task{digit_sentences} & $56.0 \pm 7.0$ & $50.0 \pm 8.3$ \\
+\task{long_word} & $54.0 \pm 7.0$ & $66.7 \pm 7.9$ \\
+\task{second_word_e} & $50.0 \pm 7.1$ & $35.0 \pm 7.5$ \\
+\bottomrule
+\end{tabular}
+\caption{Comparison of no-reasoning and medium-reasoning classification performance with standard errors. (Note that the number of runs varies between tasks, so the standard errors look a little erratic.) The color indicates whether reasoning improved the classification error. These experiments were performed with ChatGPT 5.4 Mini.}
+\label{tab:task_reasoning_results}
+\end{table}
+
+\section{Full list of successful classification tasks} \label{sec:task_list}
+
+In this section, we give a shrot description of each of the classifications tasks in \cref{tab:main_results}.
+
+\taskentry{adult_json}
+{Label A iff the JSON-like record has age $\geq$ 18.}
+{\{"name": "Kai", "age": 30, "country": "Spain", "plan": "pro"\}}
+{\{"name": "Kai", "age": 9, "country": "India", "plan": "pro"\}}
+{Programmatically generated random JSON-like records.}
+
+\taskentry{bare_question_match}
+{Label A iff the two inputs have the same \code{bare_questions} category.}
+{When did Spielberg direct Jaws / Who won World War II}
+{good film but very glum / When does menstruation begin}
+{Pairwise transform of the \code{bare_questions} pool.}
+
+\taskentry{bare_questions}
+{Label A iff the input is an actual question after punctuation has been stripped.}
+{What are the different types of plastic}
+{a fast funny highly enjoyable movie}
+{\code{SetFit/TREC-QC}~\cite{li-roth-2002} and \code{stanfordnlp/sst2}~\cite{socher-etal-2013}, with punctuation stripped.}
+
+\taskentry{contains_ab}
+{Label A iff the string contains the substring \code{ab}.}
+{abej}
+{aszu}
+{Random strings.}
+
+\taskentry{digit_sentences}
+{Label A iff the input contains at least one digit.}
+{Ben found 3 calm tiles.}
+{Ben saved six brown rings.}
+{LLM-generated synthetic dataset.}
+
+\taskentry{first_letter_pair}
+{Label A iff the two random strings have the same first character.}
+{rdln || rktu}
+{arhy || wflo}
+{Random strings.}
+
+\taskentry{human_questions}
+{Label A iff the question asks for a person or human entity.}
+{Who owns CNN ?}
+{What is DEET ?}
+{\code{SetFit/TREC-QC}~\cite{li-roth-2002}.}
+
+\taskentry{more_a_than_b}
+{Label A iff the string contains more a's than b's.}
+{aaaaaaba}
+{aaaabbbb}
+{Random strings.}
+
+\taskentry{negation}
+{Label A iff the sentence is negated rather than affirmative.}
+{Gus has no blue bowl.}
+{Gus has one blue bowl.}
+{LLM-generated synthetic dataset.}
+
+\taskentry{number_questions}
+{Label A iff the question asks for a number, quantity, date, or other numeric answer.}
+{How big is a quart ?}
+{What is HDLC ?}
+{\code{SetFit/TREC-QC}~\cite{li-roth-2002}.}
+
+\taskentry{place_questions}
+{Label A iff the question is related to locations, geography, or the earth.}
+{Where is Milan ?}
+{What is DTMF ?}
+{\code{SetFit/TREC-QC}~\cite{li-roth-2002}.}
+
+\taskentry{punctuated_question_match}
+{Label A iff the two inputs have the same \code{punctuated_questions} category.}
+{How do you make a million bucks ? / Who won World War II ?}
+{good film , but very glum . / When does menstruation begin ?}
+{Pairwise transform of the \code{punctuated_questions} pool.}
+
+\taskentry{punctuated_questions}
+{Label A iff the input is an actual question.}
+{What are the different types of plastic ?}
+{a fast funny highly enjoyable movie}
+{\code{SetFit/TREC-QC}~\cite{li-roth-2002} questions and \code{stanfordnlp/sst2}~\cite{socher-etal-2013} non-questions.}
+
+\taskentry{review_sentiment}
+{Label A iff the review is overall positive or approving of the movie.}
+{a deep and meaningful film .}
+{do not see this film .}
+{\code{stanfordnlp/sst2}~\cite{socher-etal-2013}.}
+
+\taskentry{sentence_tense}
+{Label A iff the sentence is in past tense.}
+{The child quietly cleaned the shelf.}
+{The students clean the table.}
+{LLM-generated synthetic dataset of simple sentences.}
+
+\taskentry{sentiment_match}
+{Label A iff the two reviews have the same \code{review_sentiment} category.}
+{that is a compliment to kuras and miller . / falls neatly into the category of good stupid fun .}
+{people cinema at its finest . / my reaction in a word : disappointment .}
+{Pairwise transform of the \code{review_sentiment} pool from \code{stanfordnlp/sst2}~\cite{socher-etal-2013}.}
+
+\section{Full list of unsuccessful classification tasks} \label{sec:failed_tasks}
+
+In this section, we list additional classification tasks that we tried but for which ChatGPT 5.4 with the default settings was not able to solve the classification task reliably. The classification performance for these tasks is displayed in \cref{tab:fail_performance}.
+
+\begin{table}
+\centering
+\begin{tabular}{L{0.55\linewidth}rr}
+\toprule
+Classification task & Correct & Accuracy with standard error \\
+\midrule
+\task{real_sentence_digits} & 38/50 & 76.0\% $\pm$ 6.0\% \\
+\task{sentence_tense_complicated} & 36/50 & 72.0\% $\pm$ 6.3\% \\
+\task{adult_json_match} & 36/50 & 72.0\% $\pm$ 6.3\% \\
+\task{ab_match} & 32/50 & 64.0\% $\pm$ 6.8\% \\
+\task{even_length_strings} & 31/50 & 62.0\% $\pm$ 6.9\% \\
+\task{two_digits} & 31/50 & 62.0\% $\pm$ 6.9\% \\
+\task{negation_match} & 31/50 & 62.0\% $\pm$ 6.9\% \\
+\task{first_person_voice} & 29/50 & 58.0\% $\pm$ 7.0\% \\
+\task{check_digit_codes} & 29/50 & 58.0\% $\pm$ 7.0\% \\
+\task{unique_characters} & 29/50 & 58.0\% $\pm$ 7.0\% \\
+\task{number_question_match} & 29/50 & 58.0\% $\pm$ 7.0\% \\
+\task{long_controlled_word} & 28/50 & 56.0\% $\pm$ 7.0\% \\
+\task{same_ends} & 28/50 & 56.0\% $\pm$ 7.0\% \\
+\task{mirrored_thirds} & 28/50 & 56.0\% $\pm$ 7.0\% \\
+\task{negation_complicated} & 27/50 & 54.0\% $\pm$ 7.0\% \\
+\task{tense_match} & 27/50 & 54.0\% $\pm$ 7.0\% \\
+\task{a_vs_b_count_match} & 27/50 & 54.0\% $\pm$ 7.0\% \\
+\task{long_word} & 26/50 & 52.0\% $\pm$ 7.1\% \\
+\task{digit_match} & 26/50 & 52.0\% $\pm$ 7.1\% \\
+\task{first_letter_match} & 26/50 & 52.0\% $\pm$ 7.1\% \\
+\task{place_question_match} & 25/50 & 50.0\% $\pm$ 7.1\% \\
+\task{first_three_t} & 24/50 & 48.0\% $\pm$ 7.1\% \\
+\task{boundary_initials} & 24/50 & 48.0\% $\pm$ 7.1\% \\
+\task{even_words} & 24/50 & 48.0\% $\pm$ 7.1\% \\
+\task{word_length_comparison} & 22/50 & 44.0\% $\pm$ 7.0\% \\
+\task{human_question_match} & 22/50 & 44.0\% $\pm$ 7.0\% \\
+\task{second_word_e} & 19/50 & 38.0\% $\pm$ 6.9\% \\
+\bottomrule
+\end{tabular}
+\caption{Classification accuracy on additional classification tasks.
+For each classification task, we performed 50 independent samples using the parameters described in \cref{sec:parameter_settings}.
+The accuracy is displayed with the standard error.} \label{tab:fail_performance}
+\end{table}
+
+\taskentry{boundary_initials}
+{Label A iff the last word of sentence 1 and first word of sentence 2 start with the same letter.}
+{So I ordered a slice. || Silkies have hookless feathers.}
+{The images turned out amazing. || Now, Debbie wants it.}
+{Synthetic pairings of \code{UniversalDependencies/UD_English-EWT}~\cite{silveira-etal-2014} sentences.}
+
+\taskentry{even_length_strings}
+{Label A iff the string length is even.}
+{agfw}
+{agsgc}
+{Synthetic random lowercase strings.}
+
+\taskentry{even_words}
+{Label A iff the sentence has an even number of words.}
+{I got so excited!!!!}
+{I hope all are well.}
+{\code{UniversalDependencies/UD_English-EWT}~\cite{silveira-etal-2014}.}
+
+\taskentry{first_person_voice}
+{Label A iff the sentence contains a first-person pronoun.}
+{I got so excited!!!!}
+{A girl raises her hand.}
+{\code{UniversalDependencies/UD_English-EWT}~\cite{silveira-etal-2014}.}
+
+\taskentry{long_word}
+{Label A iff the input contains a word longer than 10 letters.}
+{He said it sarcastically.}
+{It closed on Sunday...}
+{\code{UniversalDependencies/UD_English-EWT}~\cite{silveira-etal-2014}.}
+
+\taskentry{mirrored_thirds}
+{Label A iff the third character equals the third-from-last character.}
+{biffsj}
+{dawkwl}
+{Synthetic random lowercase strings.}
+
+\taskentry{negation_complicated}
+{Label A iff the sentence contains negation.}
+{I took the receipt and the metal that did not fit and asked Pomper for my money back.}
+{At the same time McCartney was going out with Heather Mills, he used Linda's death for promotional ends, due to his waning popularity.}
+{\code{UniversalDependencies/UD_English-EWT}~\cite{silveira-etal-2014}. (Note: compared to the negation task in \cref{sec:task_list}, the sentences here are considerably more complicated, which is likely why the classification failed.)}
+
+\taskentry{same_ends}
+{Label A iff the first and last character are the same.}
+{bvab}
+{boqr}
+{Synthetic random lowercase strings.}
+
+\taskentry{second_word_e}
+{Label A iff the second word contains the letter e.}
+{Now, Debbie wants it.}
+{Ryan Watt says high.}
+{\code{UniversalDependencies/UD_English-EWT}~\cite{silveira-etal-2014}.}
+
+\taskentry{sentence_tense_complicated}
+{Label A iff the sentence's syntactic root predicate is a finite verb or auxiliary annotated as past tense.}
+{At the same time McCartney was going out with Heather Mills, he used Linda's death for promotional ends, due to his waning popularity.}
+{Police in the Indian capital Delhi say they have arrested the suspected co-ordinator and financier of last month's deadly bomb blasts in the city.}
+{\code{UniversalDependencies/UD_English-EWT}~\cite{silveira-etal-2014}. (Note: compared to the past tense task in \cref{sec:task_list}, the sentences here are considerably more complicated, which is likely why the classification failed.)}
+
+\taskentry{two_digits}
+{Label A iff the string contains exactly two digits.}
+{08oyvgdp}
+{118avsq5}
+{Synthetic random strings over lowercase letters and digits.}
+
+\taskentry{unique_characters}
+{Label A iff no character appears more than once.}
+{agzwxqtd}
+{awotffvx}
+{Synthetic random lowercase strings.}
+
+\taskentry{word_length_comparison}
+{Label A iff the second word is longer than the penultimate word.}
+{Not what i expected!}
+{Ryan Watt says high.}
+{\code{UniversalDependencies/UD_English-EWT}~\cite{silveira-etal-2014}.}
+
+\begin{thebibliography}{9}
+
+\bibitem{li-roth-2002}
+Xin Li and Dan Roth.
+\newblock Learning Question Classifiers.
+\newblock In \emph{COLING 2002: The 19th International Conference on Computational Linguistics}, 2002.
+
+\bibitem{socher-etal-2013}
+Richard Socher, Alex Perelygin, Jean Wu, Jason Chuang, Christopher D. Manning, Andrew Ng, and Christopher Potts.
+\newblock Recursive Deep Models for Semantic Compositionality Over a Sentiment Treebank.
+\newblock In \emph{Proceedings of the 2013 Conference on Empirical Methods in Natural Language Processing}, pages 1631--1642, 2013.
+
+\bibitem{silveira-etal-2014}
+Natalia Silveira, Timothy Dozat, Marie-Catherine de Marneffe, Samuel Bowman, Miriam Connor, John Bauer, and Christopher D. Manning.
+\newblock A Gold Standard Dependency Corpus for English.
+\newblock In \emph{Proceedings of the Ninth International Conference on Language Resources and Evaluation (LREC 2014)}, 2014.
+
+\end{thebibliography}
+
+\end{document}

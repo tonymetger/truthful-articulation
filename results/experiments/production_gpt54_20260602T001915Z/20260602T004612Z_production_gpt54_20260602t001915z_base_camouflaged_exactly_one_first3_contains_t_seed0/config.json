@@ -1,0 +1,40 @@
+{
+  "aggregate": {
+    "accuracy": 0.48,
+    "correct": 24,
+    "data_file": "/Users/tony/Github Repos/truthful-test/data/processed/camouflaged_exactly_one_first3_contains_t/pool_seed0.jsonl",
+    "data_files": "/Users/tony/Github Repos/truthful-test/data/processed/camouflaged_exactly_one_first3_contains_t/pool_seed0.jsonl",
+    "data_format": "pool",
+    "demo_sampling_mode": "resample_per_test",
+    "k": 16,
+    "label_assignment_mode": "random_per_seed",
+    "label_map": {
+      "A": "B",
+      "B": "A"
+    },
+    "label_swap": true,
+    "model": "gpt-5.4",
+    "n_test": 50,
+    "nonparseable": 0,
+    "nonparseable_rate": 0.0,
+    "prompt_template": "minimal",
+    "prompt_templates": "minimal",
+    "provider": "openai",
+    "reasoning_effort": "none",
+    "seeds": "0",
+    "task_count": 1,
+    "task_id": "camouflaged_exactly_one_first3_contains_t",
+    "task_ids": "camouflaged_exactly_one_first3_contains_t",
+    "temperature": 0.0,
+    "test_sampling_mode": "balanced_from_pool"
+  },
+  "description": "Production GPT-5.4 label-prediction run for the base task `camouflaged_exactly_one_first3_contains_t` using the standard protocol.",
+  "experiment_id": "20260602T004612Z_production_gpt54_20260602t001915z_base_camouflaged_exactly_one_first3_contains_t_seed0",
+  "experiment_slug": "production_gpt54_20260602t001915z_base_camouflaged_exactly_one_first3_contains_t_seed0",
+  "generated_at_utc": "2026-06-02T00:46:12.665333+00:00",
+  "source_result_files": [
+    "/Users/tony/Github Repos/truthful-test/results/raw_model_outputs/production_gpt54_20260602T001915Z_base_camouflaged_exactly_one_first3_contains_t_seed0.jsonl"
+  ],
+  "timestamp_utc": "20260602T004612Z",
+  "title": "Production base prediction: camouflaged_exactly_one_first3_contains_t"
+}

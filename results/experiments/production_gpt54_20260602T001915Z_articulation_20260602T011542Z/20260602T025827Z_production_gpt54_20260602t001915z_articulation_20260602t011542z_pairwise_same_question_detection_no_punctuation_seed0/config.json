@@ -1,0 +1,11 @@
+{
+  "base_task_id": "question_detection_no_punctuation",
+  "description": "Production GPT-5.4 rule-articulation workflow for the pairwise `same` transform of `question_detection_no_punctuation`.",
+  "kind": "pairwise_high_prediction",
+  "run_id": "production_gpt54_20260602T001915Z_articulation_20260602T011542Z_pairwise_same_question_detection_no_punctuation_seed0",
+  "source_raw_results": "results/raw_model_outputs/production_gpt54_20260602T001915Z_articulation_20260602T011542Z_pairwise_same_question_detection_no_punctuation_seed0.jsonl",
+  "source_report": "results/rule_workflow_reports/production_gpt54_20260602T001915Z_articulation_20260602T011542Z_pairwise_same_question_detection_no_punctuation_seed0_report.md",
+  "source_summary": "results/tables/production_gpt54_20260602T001915Z_articulation_20260602T011542Z_pairwise_same_question_detection_no_punctuation_seed0_summary.csv",
+  "task_id": "pairwise_same_question_detection_no_punctuation",
+  "title": "Production articulation workflow: pairwise same question_detection_no_punctuation"
+}

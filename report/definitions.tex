@@ -1,0 +1,190 @@
+%%% Basics
+\usepackage{fullpage} % letter paper and margins
+\usepackage{xspace,xcolor,graphicx,tabularx,booktabs,longtable} %basic enhancements
+\usepackage{fancyvrb} %formatted prompts
+\usepackage{mathtools,amsthm,amssymb} %basic maths packages
+\usepackage{enumitem} %better lists
+\usepackage{thm-restate}
+\setenumerate[0]{label={\normalfont (\roman*)}}
+
+\DeclareRobustCommand{\task}[1]{{\small\path{#1}}}
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+\DefineVerbatimEnvironment{Prompt}{Verbatim}{fontsize=\footnotesize,baselinestretch=0.95,frame=single}
+
+\newcommand{\code}[1]{\texttt{\detokenize{#1}}}
+\newcommand{\taskentry}[5]{%
+\par\vspace{0.75em}
+\noindent\code{#1}\\
+\textbf{Rule:} #2\\
+\textbf{Example:} \begin{tabular}[t]{@{}l@{\quad}p{0.70\linewidth}@{}}
+Label A: & #3\\
+Label B: & #4
+\end{tabular}\\
+\textbf{Data source:} #5\par}
+
+%%% Typesetting and fonts
+\usepackage[T1]{fontenc}
+\usepackage[UKenglish]{babel}
+\usepackage[scaled=0.86]{helvet}
+\usepackage{mathptmx}
+\DeclareMathAlphabet{\mathcal}{OMS}{ntxm}{m}{n}
+\usepackage{dsfont} %double stroke font
+\let\mathbb\relax
+\let\mathbb\mathds
+\usepackage{stmaryrd} %extra symbols
+% adjust paragraph spacing slightly
+\makeatletter
+\renewcommand{\paragraph}{%
+  \@startsection{paragraph}{4}%
+  {\z@}{2.25ex \@plus 1ex \@minus .2ex}{-1em}%
+  {\normalfont\normalsize\bfseries}%
+}
+\makeatother
+\interfootnotelinepenalty=10000
+
+
+%%% Author list and affiliation
+\usepackage{authblk}
+\renewcommand*{\Affilfont}{\small}
+
+
+%%% Links and references
+\definecolor{linkblue}{HTML}{001487}
+\usepackage[colorlinks=true,allcolors=linkblue]{hyperref}
+\usepackage{xurl}
+\usepackage[nameinlink,capitalize,noabbrev]{cleveref}
+\crefname{enumi}{Step}{Steps}
+
+
+%%% Theorem environments
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem*{theorem*}{Theorem}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{conjecture}[theorem]{Conjecture}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{claim}[theorem]{Claim}
+\newtheorem{fact}[theorem]{Fact}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{example}[theorem]{Example}
+\newtheorem{protocol}{Protocol}
+\numberwithin{equation}{section}
+\newcommand\numberthis{\addtocounter{equation}{1}\tag{\theequation}}
+
+
+%%% Basic maths abbreviations
+%Symbols
+\newcommand{\setft}[1]{\textnormal{#1}}
+\newcommand{\eps}{\epsilon}
+\newcommand{\1}{\mathbb{1}}
+\newcommand{\id}{\setft{id}}
+\newcommand{\C}{\ensuremath{\mathds{C}}}
+\newcommand{\F}{\ensuremath{\mathds{F}}}
+\newcommand{\N}{\ensuremath{\mathds{N}}}
+\newcommand{\R}{\ensuremath{\mathds{R}}}
+\newcommand{\Z}{\ensuremath{\mathds{Z}}}
+\newcommand{\bits}{\ensuremath{\{0, 1\}}}
+
+%Operators
+\newcommand{\ot}{\ensuremath{\otimes}}
+\newcommand{\deq}{\coloneqq}
+\newcommand{\tr}[1]{\mathrm{Tr}\!\left[ #1 \right]}
+\newcommand{\ptr}[2]{\mathrm{Tr}_{#1}\!\left[ #2 \right]}
+\newcommand{\pr}[1]{\mathrm{Pr}\!\left[ #1 \right]}
+\newcommand{\prs}[2]{\mathrm{Pr}_{#1}\!\left[ #2 \right]}
+\newcommand{\norm}[1]{\left\lVert#1\right\rVert}
+\DeclareMathOperator{\pos}{Pos}
+\DeclareMathOperator{\poly}{poly}
+\DeclareMathOperator{\negl}{negl}
+\DeclareMathOperator{\supp}{\setft{supp}}
+\DeclareMathOperator{\img}{img}
+\DeclareMathOperator*{\E}{\mathds{E}}
+
+%Words
+\newcommand{\sth}{{\setft{~s.t.~}}}
+\newcommand{\tand}{\;\textnormal{~and~}\;}
+\newcommand{\wrt}{\quad {\rm ~~w.r.t.~~}}
+
+
+%%% Quantum notation
+\newcommand{\ket}[1]{|#1\rangle}
+\newcommand{\bra}[1]{\langle#1|}
+\newcommand{\proj}[1]{\ket{#1}\!\bra{#1}}
+\DeclarePairedDelimiterX\braket[2]{\langle}{\rangle}{#1 \delimsize\vert #2}
+\newcommand{\cp}{\setft{CP}}
+\newcommand{\cptp}{\setft{CPTP}}
+
+
+%%% mathcal shortcuts
+\newcommand{\cA}{\ensuremath{\mathcal{A}}}
+\newcommand{\cB}{\ensuremath{\mathcal{B}}}
+\newcommand{\cC}{\ensuremath{\mathcal{C}}}
+\newcommand{\cD}{\ensuremath{\mathcal{D}}}
+\newcommand{\cE}{\ensuremath{\mathcal{E}}}
+\newcommand{\cF}{\ensuremath{\mathcal{F}}}
+\newcommand{\cG}{\ensuremath{\mathcal{G}}}
+\newcommand{\cH}{\ensuremath{\mathcal{H}}}
+\newcommand{\cI}{\ensuremath{\mathcal{I}}}
+\newcommand{\cJ}{\ensuremath{\mathcal{J}}}
+\newcommand{\cK}{\ensuremath{\mathcal{K}}}
+\newcommand{\cL}{\ensuremath{\mathcal{L}}}
+\newcommand{\cM}{\ensuremath{\mathcal{M}}}
+\newcommand{\cN}{\ensuremath{\mathcal{N}}}
+\newcommand{\cO}{\ensuremath{\mathcal{O}}}
+\newcommand{\cP}{\ensuremath{\mathcal{P}}}
+\newcommand{\cQ}{\ensuremath{\mathcal{Q}}}
+\newcommand{\cR}{\ensuremath{\mathcal{R}}}
+\newcommand{\cS}{\ensuremath{\mathcal{S}}}
+\newcommand{\cT}{\ensuremath{\mathcal{T}}}
+\newcommand{\cU}{\ensuremath{\mathcal{U}}}
+\newcommand{\cV}{\ensuremath{\mathcal{V}}}
+\newcommand{\cX}{\ensuremath{\mathcal{X}}}
+\newcommand{\cY}{\ensuremath{\mathcal{Y}}}
+\newcommand{\cZ}{\ensuremath{\mathcal{Z}}}
+
+
+%%% redefine Greek letters because the mathptmx ones are ugly
+\DeclareSymbolFont{greekletters}{OML}{ntxmi}{m}{it}
+\DeclareMathSymbol{\alpha}{\mathord}{greekletters}{"0B}
+\DeclareMathSymbol{\beta}{\mathord}{greekletters}{"0C}
+\DeclareMathSymbol{\gamma}{\mathord}{greekletters}{"0D}
+\DeclareMathSymbol{\delta}{\mathord}{greekletters}{"0E}
+\DeclareMathSymbol{\epsilon}{\mathord}{greekletters}{"0F}
+\DeclareMathSymbol{\zeta}{\mathord}{greekletters}{"10}
+\DeclareMathSymbol{\eta}{\mathord}{greekletters}{"11}
+\DeclareMathSymbol{\theta}{\mathord}{greekletters}{"12}
+\DeclareMathSymbol{\iota}{\mathord}{greekletters}{"13}
+\DeclareMathSymbol{\kappa}{\mathord}{greekletters}{"14}
+\DeclareMathSymbol{\lambda}{\mathord}{greekletters}{"15}
+\DeclareMathSymbol{\mu}{\mathord}{greekletters}{"16}
+\DeclareMathSymbol{\nu}{\mathord}{greekletters}{"17}
+\DeclareMathSymbol{\xi}{\mathord}{greekletters}{"18}
+\DeclareMathSymbol{\pi}{\mathord}{greekletters}{"19}
+\DeclareMathSymbol{\rho}{\mathord}{greekletters}{"1A}
+\DeclareMathSymbol{\sigma}{\mathord}{greekletters}{"1B}
+\DeclareMathSymbol{\tau}{\mathord}{greekletters}{"1C}
+\DeclareMathSymbol{\upsilon}{\mathord}{greekletters}{"1D}
+\DeclareMathSymbol{\phi}{\mathord}{greekletters}{"1E}
+\DeclareMathSymbol{\chi}{\mathord}{greekletters}{"1F}
+\DeclareMathSymbol{\psi}{\mathord}{greekletters}{"20}
+\DeclareMathSymbol{\omega}{\mathord}{greekletters}{"21}
+\DeclareMathSymbol{\varepsilon}{\mathord}{greekletters}{"22}
+\DeclareMathSymbol{\vartheta}{\mathord}{greekletters}{"23}
+\DeclareMathSymbol{\varpi}{\mathord}{greekletters}{"24}
+\DeclareMathSymbol{\varrho}{\mathord}{greekletters}{"25}
+\DeclareMathSymbol{\varsigma}{\mathord}{greekletters}{"26}
+\DeclareMathSymbol{\varphi}{\mathord}{greekletters}{"27}
+
+
+%------------------------------------------------------------%
+
+%%% Project-specific commands %%%
+
+
+%%% Comments
+\newcommand{\highlightname}[3]{{\textcolor{#3}{\footnotesize{\bf (#1:} {#2}{\bf ) }}}} %for comments
+\newcommand{\tm}[1]{{\highlightname{Tony}{#1}{blue}}}

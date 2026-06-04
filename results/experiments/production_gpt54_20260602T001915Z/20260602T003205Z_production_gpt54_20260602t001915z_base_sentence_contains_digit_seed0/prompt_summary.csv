@@ -1,0 +1,2 @@
+prompt_template,task_id,model,provider,k,seed,n_test,correct,accuracy,nonparseable,nonparseable_rate,temperature,reasoning_effort,data_format,data_file,test_sampling_mode,demo_sampling_mode,label_assignment_mode,label_swap,label_map
+minimal,sentence_contains_digit,gpt-5.4,openai,16,0,50,38,0.76,0,0.0,0.0,none,pool,/Users/tony/Github Repos/truthful-test/data/processed/sentence_contains_digit/pool_seed0.jsonl,balanced_from_pool,resample_per_test,random_per_seed,True,"{'A': 'B', 'B': 'A'}"
